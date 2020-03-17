@@ -97,7 +97,9 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) replace(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
-	file, header, err := r.FormFile("file")
+	vars := mux.Vars(r)
+	name := vars["name"]
+	file, _, err := r.FormFile("file")
 	if err != nil {
 		if err == http.ErrMissingFile {
 			badRequest("missing file to replace", w)
@@ -107,12 +109,12 @@ func (s *Server) replace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	_, err = os.Stat(s.ContentRoot + header.Filename)
+	_, err = os.Stat(s.ContentRoot + name)
 	if os.IsNotExist(err) {
 		badRequest("file with this name doesn't exists", w)
 		return
 	}
-	f, err := os.OpenFile(s.ContentRoot+header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(s.ContentRoot+name, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		internalServerError("could not open file", w)
 		return
