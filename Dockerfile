@@ -1,17 +1,11 @@
-FROM golang:alpine AS builder
+# build stage
+FROM golang:alpine AS build-env
+RUN apk --no-cache add build-base git bzr mercurial gcc
+ADD . /src
+RUN cd /src && go build -o goapp
 
-RUN apk update && apk add --no-cache git
-
-WORKDIR $GOPATH/src/cdn
-
-COPY . .
-
-RUN go get -d -v
-
-RUN go build -o /go/bin/cdn
-
-FROM scratch
-
-COPY --from=builder /go/bin/cdn /go/bin/cdn
-
-ENTRYPOINT ["/go/bin/cdn"]
+# final stage
+FROM alpine
+WORKDIR /app
+COPY --from=build-env /src/goapp /app/
+ENTRYPOINT [ "./goapp" ]
