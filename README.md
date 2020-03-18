@@ -19,11 +19,14 @@ You can get the latest docker image with `docker pull devyukine/cdn`
   - `PATCH` `/assets/{name}` Replace assets
   - `DELETE` `/assets/{name}` Delete assets
 
-### Post/Patch:
-You need to send multipart/form-data with a key called `file` & a file as value
+### Post/Patch File Upload
+You need to send the file in `multipart/form-data` as the `file` key
 
 ### Responses
 The api will **always** respond with the application/json format
+
+### Filenames
+The filename is defaulted to the name of the uploaded asset. If you want to generate a filename you can set the `generate_name` key to `true`, the cdn will respond with an object containing a `file_name` value
 
 ### Prerequisites
 
