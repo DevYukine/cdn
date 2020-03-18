@@ -21,10 +21,11 @@ const (
 type Server struct {
 	ContentRoot string
 	Port        string
+	AuthToken   string
 }
 
 // NewHTTPServer creates a new cdn http server
-func NewHTTPServer(contentRoot string, port string) *Server {
+func NewHTTPServer(contentRoot string, port string, authToken string) *Server {
 	if contentRoot == "" {
 		contentRoot = defaultStaticDirName
 	}
@@ -32,7 +33,7 @@ func NewHTTPServer(contentRoot string, port string) *Server {
 	if port == "" {
 		port = defaultPort
 	}
-	return &Server{ContentRoot: contentRoot, Port: port}
+	return &Server{ContentRoot: contentRoot, Port: port, AuthToken: authToken}
 }
 
 // Serve will start the cdn service
@@ -52,12 +53,29 @@ func (s *Server) newRouter() *mux.Router {
 	}
 
 	router.NewRoute().Handler(http.StripPrefix("/", http.FileServer(http.Dir(s.ContentRoot)))).Methods("GET")
-	router.HandleFunc("/assets", s.create).Methods("POST", "PUT")
-	router.HandleFunc("/assets/{name}", s.delete).Methods("DELETE")
-	router.HandleFunc("/assets/{name}", s.replace).Methods("PATCH")
+	router.HandleFunc("/assets", s.applyAuthentication(s.create)).Methods("POST", "PUT")
+	router.HandleFunc("/assets/{name}", s.applyAuthentication(s.delete)).Methods("DELETE")
+	router.HandleFunc("/assets/{name}", s.applyAuthentication(s.replace)).Methods("PATCH")
 
 	return router
 }
+
+func (s *Server) applyAuthentication(fun func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if s.AuthToken != "" {
+			auth := r.Header.Get("Authorization")
+			if auth == "" {
+				unauthorized("missing authentication header", w)
+				return
+			} else if auth != s.AuthToken {
+				forbidden("invalid authentication", w)
+				return
+			}
+		}
+		fun(w, r)
+	}
+}
+
 func (s *Server) create(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
 	file, header, err := r.FormFile("file")

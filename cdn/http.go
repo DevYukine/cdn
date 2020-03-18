@@ -34,6 +34,14 @@ func internalServerError(message string, w http.ResponseWriter) {
 	exception(http.StatusInternalServerError, message, w)
 }
 
+func unauthorized(message string, w http.ResponseWriter) {
+	exception(http.StatusUnauthorized, message, w)
+}
+
+func forbidden(message string, w http.ResponseWriter) {
+	exception(http.StatusForbidden, message, w)
+}
+
 func exception(statusCode int, message string, w http.ResponseWriter) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
