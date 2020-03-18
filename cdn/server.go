@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -90,7 +91,7 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request) {
 	name := header.Filename
 	b, e := strconv.ParseBool(r.FormValue("generate_name"))
 	if e == nil || b == true {
-		name = uuid.New().String()
+		name = uuid.New().String() + filepath.Ext(header.Filename)
 	}
 	defer file.Close()
 	_, err = os.Stat(s.ContentRoot + name)
