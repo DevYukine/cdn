@@ -23,10 +23,11 @@ type Server struct {
 	ContentRoot string
 	Port        string
 	AuthToken   string
+	BehindProxy bool
 }
 
 // NewHTTPServer creates a new cdn http server
-func NewHTTPServer(contentRoot string, port string, authToken string) *Server {
+func NewHTTPServer(contentRoot string, port string, authToken string, behindProxy string) *Server {
 	if contentRoot == "" {
 		contentRoot = defaultStaticDirName
 	}
@@ -34,13 +35,24 @@ func NewHTTPServer(contentRoot string, port string, authToken string) *Server {
 	if port == "" {
 		port = defaultPort
 	}
-	return &Server{ContentRoot: contentRoot, Port: port, AuthToken: authToken}
+	var replaceHeaders bool
+	if behindProxy == "" {
+		replaceHeaders = false
+	} else {
+		b, e := strconv.ParseBool(behindProxy)
+		if e != nil {
+			replaceHeaders = b
+		} else {
+			replaceHeaders = false
+		}
+	}
+	return &Server{ContentRoot: contentRoot, Port: port, AuthToken: authToken, BehindProxy: replaceHeaders}
 }
 
 // Serve will start the cdn service
 func (s *Server) Serve() {
 	router := s.newRouter()
-	err := http.ListenAndServe(":"+s.Port, applyHandlers(router))
+	err := http.ListenAndServe(":"+s.Port, applyHandlers(router, s.BehindProxy))
 	if err != nil {
 		log.Fatal("ListenAndServe Error: ", err)
 	}

@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	cdn.NewHTTPServer(os.Getenv("CONTENT_ROOT"), os.Getenv("PORT"), os.Getenv("TOKEN")).Serve()
+	cdn.NewHTTPServer(os.Getenv("CONTENT_ROOT"), os.Getenv("PORT"), os.Getenv("TOKEN"), os.Getenv("REVERSE_PROXY")).Serve()
 }

@@ -40,6 +40,7 @@ Environment Variables:
   - `CONTENT_ROOT` The folder to save assets to
   - `PORT` The port to run the server on
   - `TOKEN` **Optional** A token which is required to add/replace/delete assets
+  - `REVERSE_PROXY` **Optional** If this instance runs behind a reverse proxy (e.g. nginx, HAProxy or apache) and should use forward header
 
 ## Built With
 
