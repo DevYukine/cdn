@@ -17,7 +17,7 @@ func optionalApplyProxyHandler(handler http.Handler, apply bool) http.Handler {
 }
 
 func applyHandlers(router *mux.Router, behindProxy bool) http.Handler {
-	return handlers.CORS()(handlers.CompressHandler(handlers.CombinedLoggingHandler(os.Stdout, optionalApplyProxyHandler(router, behindProxy))))
+	return handlers.CORS()(handlers.CompressHandler(optionalApplyProxyHandler(handlers.CombinedLoggingHandler(os.Stdout, router), behindProxy)))
 }
 
 func okWithContent(content []byte, w http.ResponseWriter) {
