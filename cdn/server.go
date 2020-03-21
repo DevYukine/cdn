@@ -41,9 +41,9 @@ func NewHTTPServer(contentRoot string, port string, authToken string, behindProx
 	} else {
 		b, e := strconv.ParseBool(behindProxy)
 		if e != nil {
-			replaceHeaders = b
-		} else {
 			replaceHeaders = false
+		} else {
+			replaceHeaders = b
 		}
 	}
 	return &Server{ContentRoot: contentRoot, Port: port, AuthToken: authToken, BehindProxy: replaceHeaders}
